@@ -8,6 +8,8 @@ from video_extracter import MovieDataExtractorFFmpeg
 
 import os.path
 
+from django.urls import reverse
+
 fetcher = MovieDataExtractorFFmpeg(settings.FFMPEG)
 extractor = MovieDataExtractor(fetcher)
 
@@ -70,9 +72,16 @@ class Movie(models.Model):
     def play_file(self):
         os.startfile(self.get_path())
     
+    def get_tags(self):
+        return self.tags.all()
+    
     def add_tag(self, tag):
         tag, created = Tag.objects.get_or_create(name = tag)
         tag.movies.add(self)
+        tag.update_count()
+    
+    def get_thumbs(self):
+        return self.thumbs.all()
     
     def add_thumb(self, data, timestamp):
         t = Thumb()
@@ -104,6 +113,9 @@ class Thumb(models.Model):
     movie = models.ForeignKey(Movie, related_name='thumbs')
     timestamp = models.IntegerField(default = 0)
     image = models.BinaryField()
+    
+    def get_image_url(self):
+        return reverse("thumb-show", args=(self.id,))
     
     def __unicode__(self):
         return u"Thumb for %s [%s]" % ( self.movie, self.timestamp)
