@@ -21,3 +21,8 @@ class MoviesIndex(ListView):
         context = super(MoviesIndex, self).get_context_data(**kwargs)
         context['tags'] = models.Tag.objects.all()
         return context
+    
+def play_movie(request, movieid):
+    movie = models.Movie.objects.get(id=movieid)
+    movie.play_file()
+    return HttpResponse("OK")
