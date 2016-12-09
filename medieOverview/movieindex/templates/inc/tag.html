@@ -1,1 +1,1 @@
-<span class="tag"> {{ tag.name }} </span>
+<span class="tag"><a href="{% url "movie-list" %}?tag={{ tag.name }}">{{ tag.name }}</a></span>

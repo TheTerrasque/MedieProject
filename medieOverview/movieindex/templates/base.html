@@ -1,11 +1,18 @@
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Movies</title>
+    <link rel="stylesheet" type="text/css" href="{% static "/css/base.css" %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="{% static "/js/base.js" %}"></script>
+    <meta charset="UTF-8">
+    <title>Movies</title>
 </head>
 
 <body>
+    <div id="nav">
+        <span><a href="{% url "movie-list" %}">Movies</a></span>
+        <span><a href="{% url "moviefolder-list" %}">Folders</a></span>
+    </div>
     <div id="side">
         {% block side %}
         {% endblock %}

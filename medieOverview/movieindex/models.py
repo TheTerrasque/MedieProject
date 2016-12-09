@@ -24,6 +24,11 @@ class MovieFolder(models.Model):
     def __unicode__(self):
         return self.name
     
+    def get_movie(self, fullpath):
+        if fullpath.startswith(self.folder):
+            fp = fullpath[len(self.folder):].lstrip("\\")
+            return self.movie_set.filter(subpath = fp).first()
+    
     def add_movie(self, subpath, category, tags=[]):
         with transaction.atomic():
             path = os.path.join(self.folder, subpath)
@@ -65,6 +70,7 @@ class Movie(models.Model):
     width = models.IntegerField()
     
     main_thumb = models.ForeignKey('Thumb', null=True, blank = True, related_name="movie2")
+    tags = models.ManyToManyField("Tag", related_name="movies", blank=True)
     
     def get_path(self):
         return os.path.join(self.folder.folder, self.subpath)
@@ -83,6 +89,13 @@ class Movie(models.Model):
     def get_thumbs(self):
         return self.thumbs.all()
     
+    class Meta:
+        permissions = (
+            ("download_movie", "Can download movie"),
+            ("play_movie", "Can play movie"),
+            ("tag_movie", "Can tag movie"),
+        )
+    
     def add_thumb(self, data, timestamp):
         t = Thumb()
         t.timestamp = timestamp
@@ -98,7 +111,6 @@ class Movie(models.Model):
         return self.title
     
 class Tag(models.Model):
-    movies = models.ManyToManyField(Movie, related_name="tags")
     name = models.CharField(unique = True, max_length=20)
     count = models.IntegerField(default = 0)
     
@@ -108,6 +120,9 @@ class Tag(models.Model):
     def update_count(self):
         self.count = self.movies.count()
         self.save()
+        
+    class Meta:
+        ordering = ["name"]
 
 class Thumb(models.Model):
     movie = models.ForeignKey(Movie, related_name='thumbs')

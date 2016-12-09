@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Movie folders</h2>
+    {% include "inc/paginate.html" %}
+    <div id="moviefolders">
+        <table>
+            <tr>
+                <td>Folder name</td>
+                <td>Placement</td>
+                <td>Number of movies</td>
+                <td></td>
+            </tr>
+        {% for mf in object_list %}
+            <tr>
+                <td>{{mf.name}}</td>
+                <td>{{mf.folder}}</td>
+                <td>{{mf.movie_set.count}}</td>
+                <td><a href="{% url "moviefolder-scan" mf.id %}">Scan</a></td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+{% endblock %}

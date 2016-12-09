@@ -1,0 +1,42 @@
+.movie .info {
+    display: none;
+    background-color: #ddf;
+    padding: 6px;
+    border: 2px solid #333;
+    border-radius: 6px;
+    width: 520px;
+    margin-left: -150px;
+}
+
+#side {
+    float: left;
+    width: 145px;
+}
+
+div.mainthumb {
+    height: 96px;
+    width: 170px;
+    overflow: hidden;
+}
+#main {
+    margin-left: 150px;
+}
+.movie {
+    border: 1px solid #333;
+    float: left;
+    margin: 10px;
+    box-shadow: 2px 2px 12px #333;
+}
+.movie .thumbs .thumb {
+    display: inline-block;
+}
+
+.movie:hover .info {
+    display: block;
+    position: absolute;
+}
+
+#movies .footer {
+    clear: both;
+    height: 400px;
+}
