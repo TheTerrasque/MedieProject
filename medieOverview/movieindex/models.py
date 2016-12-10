@@ -44,6 +44,11 @@ class MovieFolder(models.Model):
             
             for tag in tags:
                 m.add_tag(tag)
+
+    class Meta:
+        permissions = (
+            ("scan_folder", "Can scan folder"),
+        )
         
 class MovieCategory(models.Model):
     name = models.CharField(max_length=100)

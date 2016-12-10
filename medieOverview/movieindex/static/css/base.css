@@ -26,6 +26,9 @@ div.mainthumb {
     float: left;
     margin: 10px;
     box-shadow: 2px 2px 12px #333;
+    overflow:hidden;
+    width: 170px;
+    height: 137px;
 }
 .movie .thumbs .thumb {
     display: inline-block;

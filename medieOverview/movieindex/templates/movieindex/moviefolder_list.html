@@ -16,7 +16,7 @@
                 <td>{{mf.name}}</td>
                 <td>{{mf.folder}}</td>
                 <td>{{mf.movie_set.count}}</td>
-                <td><a href="{% url "moviefolder-scan" mf.id %}">Scan</a></td>
+                <td>{% if perms.movieindex.play_movie %}<a href="{% url "moviefolder-scan" mf.id %}">Scan</a>{% endif %}</td>
             </tr>
         {% endfor %}
         </table>

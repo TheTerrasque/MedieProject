@@ -20,18 +20,25 @@
                 <div class="mainthumb">
                     <img src="{{ movie.main_thumb.get_image_url }}">
                 </div>
+                <div class="title">{{ movie.title}}</div>
                 
-                <div class="tags">
-                    Tags:
-                    {% for tag in movie.get_tags %}
-                        {% include "inc/tag.html" %}
-                    {% endfor %}
-                </div>
                 <div class="info">
-                    <div class="title">{{ movie.title}}</div>
+                    <div class="tags">
+                        Tags:
+                        {% for tag in movie.get_tags %}
+                            {% include "inc/tag.html" %}
+                        {% endfor %}
+                    </div>
                     <div class="actions">
-                        <a href="{% url "movie-play" movie.id %}" target="_blank">Play movie</a>
-                        <a href="{% url "admin:movieindex_movie_change" movie.id %}" target="_blank">Edit movie</a>
+                        {% if perms.movieindex.play_movie %}
+                            <a href="{% url "movie-play" movie.id %}" target="_blank">Play movie</a>
+                        {% endif %}
+                        {% if perms.movieindex.download_movie %}
+                            <a href="{% url "movie-download" movie.id %}" target="_blank">Download movie</a>
+                        {% endif %}
+                        {% if user.is_staff %}
+                            <a href="{% url "admin:movieindex_movie_change" movie.id %}" target="_blank">Edit movie</a>
+                        {% endif %}
                     </div>
                     <div class="thumbs" id="thumbs-for-{{movie.id}}">
                         {% for thumb in movie.get_thumbs %}
