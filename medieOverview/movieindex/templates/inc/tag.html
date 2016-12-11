@@ -1,1 +1,2 @@
-<span class="tag"><a href="{% url "movie-list" %}?tag={{ tag.name }}">{{ tag.name }}</a></span>
+{% load movieindex_extras %}
+<span class="tag"><a href="{% url "movie-list-tag" sctags|addstr:tag.id %}">{{ tag.name }}</a></span>

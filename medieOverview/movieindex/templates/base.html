@@ -1,17 +1,22 @@
 {% load static %}<!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" type="text/css" href="{% static "/css/base.css" %}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="{% static "/js/base.js" %}"></script>
+    
+    <link rel="stylesheet" href="/static/v2/base.css">
+    <script src="/static/v2/jquery-2.0.3.min.js"></script>
+    <script src="/static/v2/handlebars-v1.3.0.js"></script>
+    <script src="/static/v2/movie.js"></script>
+    
     <meta charset="UTF-8">
     <title>Movies</title>
 </head>
 
 <body>
-    <div id="nav">
+    <div id="top">
         <span><a href="{% url "movie-list" %}">Movies</a></span>
         <span><a href="{% url "moviefolder-list" %}">Folders</a></span>
+        {% if user.is_staff %}<span><a href="{% url "admin:index" %}">Admin</a></span>{% endif %}
+        {% include "inc/paginate.html" %}
     </div>
     <div id="side">
         {% block side %}

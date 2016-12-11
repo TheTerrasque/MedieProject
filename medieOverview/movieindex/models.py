@@ -7,8 +7,10 @@ from film_parser import MovieDataExtractor
 from video_extracter import MovieDataExtractorFFmpeg
 
 import os.path
-
+from get_username import get_username
 from django.urls import reverse
+
+from django.contrib.auth.models import User
 
 fetcher = MovieDataExtractorFFmpeg(settings.FFMPEG)
 extractor = MovieDataExtractor(fetcher)
@@ -17,13 +19,15 @@ extractor = MovieDataExtractor(fetcher)
 class MovieFolder(models.Model):
     name = models.CharField(max_length=100)
     folder = models.CharField(max_length=200)
+    default_category = models.ForeignKey("MovieCategory")
+    last_scanned = models.DateTimeField(blank=True, null=True)
     
     def file_exists(self, subpath):
         return self.movie_set.filter(subpath=subpath).exists()
     
     def __unicode__(self):
         return self.name
-    
+
     def get_movie(self, fullpath):
         if fullpath.startswith(self.folder):
             fp = fullpath[len(self.folder):].lstrip("\\")
@@ -56,6 +60,9 @@ class MovieCategory(models.Model):
     def __unicode__(self):
         return self.name
     
+    def user_access(self, user):
+        return True
+    
 class Movie(models.Model):
     folder = models.ForeignKey(MovieFolder)
     category = models.ForeignKey(MovieCategory)
@@ -85,14 +92,23 @@ class Movie(models.Model):
     
     def get_tags(self):
         return self.tags.all()
+
+    def user_access(self, user):
+        return self.category.user_access(user)
     
     def add_tag(self, tag):
-        tag, created = Tag.objects.get_or_create(name = tag)
-        tag.movies.add(self)
-        tag.update_count()
+        if tag:
+            tag, created = Tag.objects.get_or_create(name = tag)
+            tag.movies.add(self)
+            self.log("Added tag %s" % tag)
+            tag.update_count()
     
     def get_thumbs(self):
         return self.thumbs.all()
+    
+    def log(self, entry):
+        user = get_username().user
+        return MovieLog.objects.create(user=user, movie=self, entry=entry)
     
     class Meta:
         permissions = (
@@ -114,6 +130,12 @@ class Movie(models.Model):
     
     def __unicode__(self):
         return self.title
+
+class MovieLog(models.Model):
+    user = models.ForeignKey(User, blank=True, null=True)
+    movie = models.ForeignKey(Movie)
+    entry = models.TextField()
+    added = models.DateTimeField(auto_now=True)
     
 class Tag(models.Model):
     name = models.CharField(unique = True, max_length=20)

@@ -1,57 +1,49 @@
 {% extends "base.html" %}
 
 {% block side %}
-    <h2>Tags</h2>
-    <div id="tags">
+    <div id="tagslist">
+        <div id="activetags">
+            {% if ctags %}
+        <div>Active tags</div>
+        {% for tag in ctags %}
+            <span>{% include "inc/tag.html" %}</span>
+        {% endfor %}
+        {% endif %}
+        </div>
+        
+        <span class="header">Taglist</span>
+        
         {% for tag in tags %}
-            <div>
-                {% include "inc/tag.html" %} {{ tag.movies.count }}
-            </div>
+            <div>{% include "inc/tag.html" %} {{tag.movies.count }}</div>
         {% endfor %}
     </div>
 {% endblock %}
 
 {% block content %}
-    <h2>Movies</h2>
-    {% include "inc/paginate.html" %}
-    <div id="movies">
+    <div id="movielist">
         {% for movie in movies %}
-            <div class="movie" data-id="{{ movie.id }}">
-                <div class="mainthumb">
+            <div class="movie"  id="movie-{{movie.id}}">
+                <div class="mainthumb" data-url="{% url "movie-json-detail" movie.id %}">
                     <img src="{{ movie.main_thumb.get_image_url }}">
                 </div>
-                <div class="title">{{ movie.title}}</div>
-                
-                <div class="info">
-                    <div class="tags">
-                        Tags:
-                        {% for tag in movie.get_tags %}
-                            {% include "inc/tag.html" %}
-                        {% endfor %}
-                    </div>
-                    <div class="actions">
-                        {% if perms.movieindex.play_movie %}
-                            <a href="{% url "movie-play" movie.id %}" target="_blank">Play movie</a>
-                        {% endif %}
-                        {% if perms.movieindex.download_movie %}
-                            <a href="{% url "movie-download" movie.id %}" target="_blank">Download movie</a>
-                        {% endif %}
-                        {% if user.is_staff %}
-                            <a href="{% url "admin:movieindex_movie_change" movie.id %}" target="_blank">Edit movie</a>
-                        {% endif %}
-                    </div>
-                    <div class="thumbs" id="thumbs-for-{{movie.id}}">
-                        {% for thumb in movie.get_thumbs %}
-                            <div class="thumb">
-                                <img src="{{ thumb.get_image_url }}">
-                            </div>
-                        {% endfor %}
-                    </div>
+                <div class="actions">
+                    {% if perms.movieindex.play_movie %}
+                        <a href="{% url "movie-play" movie.id %}" target="_blank">Play</a>
+                    {% endif %}
+                    {% if perms.movieindex.download_movie %}
+                        <a href="{% url "movie-download" movie.id %}" target="_blank">Download</a>
+                    {% endif %}
+                    {% if user.is_staff %}
+                        <a href="{% url "admin:movieindex_movie_change" movie.id %}" target="_blank">Edit</a>
+                    {% endif %}
                 </div>
+                <div class="title">{{ movie.title}}</div>
+
+                <div class="info">
+                </div>
+                <div class="popupc"></div>
             </div>
         {% endfor %}
-        <div class="footer">
-            {% include "inc/paginate.html" %}
-        </div>
+        <div id="footer"></div>
     </div>
 {% endblock %}

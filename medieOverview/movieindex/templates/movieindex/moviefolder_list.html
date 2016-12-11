@@ -8,14 +8,18 @@
             <tr>
                 <td>Folder name</td>
                 <td>Placement</td>
+                <td>Default Category</td>
                 <td>Number of movies</td>
+                <td>Last Scanned</td>
                 <td></td>
             </tr>
         {% for mf in object_list %}
             <tr>
                 <td>{{mf.name}}</td>
                 <td>{{mf.folder}}</td>
+                <td>{{mf.default_category}}</td>
                 <td>{{mf.movie_set.count}}</td>
+                <td>{{mf.last_scanned}}</td>
                 <td>{% if perms.movieindex.play_movie %}<a href="{% url "moviefolder-scan" mf.id %}">Scan</a>{% endif %}</td>
             </tr>
         {% endfor %}

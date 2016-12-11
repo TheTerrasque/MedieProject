@@ -1,15 +1,22 @@
     {% if is_paginated %}
-        <div class="pagination">
-            <span class="page-links">
-                {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-                {% endif %}
-                <span class="page-current">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-                </span>
+        <div id="paginate">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% else %}
+                <span>previous</span>
+            {% endif %}
+            <span id="pages">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
                 {% if page_obj.has_next %}
                     <a href="?page={{ page_obj.next_page_number }}">next</a>
+                {% else %}
+                    <span>next</span>
                 {% endif %}
-            </span>
+            <div id="pageslist">
+                <div>Pages</div>
+                {% for pagenr in page_obj.paginator.page_range %}
+                    <a href="?page={{pagenr}}">{{pagenr}}</a>
+                
+                {% endfor %}
+            </div>
         </div>
-    {% endif %}
+        {% endif %}

@@ -2,6 +2,13 @@ from django.contrib import admin
 from . import models
 # Register your models here.
 
+@admin.register(models.MovieLog)
+class MovieLogAdmin(admin.ModelAdmin):
+    list_display = ["movie", "user", "entry"]
+    search_fields = ["movie__title", "user__username", "entry"]
+    list_filter = ["user"]
+    #date_hierarchy = "added"
+
 @admin.register(models.Movie)
 class MovieAdmin(admin.ModelAdmin):
     list_display = ["title", "folder", "category"]
@@ -9,6 +16,7 @@ class MovieAdmin(admin.ModelAdmin):
     search_fields = ["title", "subpath"]
     raw_id_fields = ["main_thumb"]
     filter_horizontal = ["tags"]
+    #date_hierarchy = "added"
     
 admin.site.register(models.MovieCategory)
 admin.site.register(models.MovieFolder)
