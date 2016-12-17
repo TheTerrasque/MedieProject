@@ -48,8 +48,8 @@ def jsonMovie(request, pk):
         "thumbs": [x.get_image_url() for x in movie.get_thumbs()],
         "tags": [{"name":x.name} for x in movie.tags.all()],
         "path": unicode(movie.folder),
-        "tagurl": reverse("movie-addtag", args=(movie.id,)),
-        "url": reverse("movie-json-detail", args=(movie.id,)),
+        "tagurl": movie.get_tag_url(),
+        "url": movie.get_json_url(),
     }
     return JsonResponse(d)
     

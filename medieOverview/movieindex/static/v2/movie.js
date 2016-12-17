@@ -1,39 +1,15 @@
 var template = {}
 
-template.taglist = Handlebars.compile('    <ul>\
-        {{#each tags}}\
-        <li>\
-            <a href="/tag/{{ this.id }}">\
-                {{ this.name }}\
-            </a>\
-            <span class="tagcount">{{ this.count }}</span>\
-        </li>\
-        {{/each }}\
-    </ul>'
-    );
-
-template.popup = Handlebars.compile('<div class="popup">\
-                <div class="close"><span>[X]</span></div>\
-                <div class="thumbspop">\
+template.thumbs = Handlebars.compile('<div class="thumbspop">\
                 {{#each thumbs }}\
                     <img src="{{ this }}">\
                 {{/each}}\
-                </div>\
-                <div class="movinfo">\
-                    <div class="movietags">Tags:\
+                </div>');
+template.tags = Handlebars.compile('<div class="movietags">Tags:\
                         {{#each tags}}\
                             <span class="atag">{{this.name }}</span>\
                         {{/each}}\
-                    </div>\
-                    <div class="addtag">\
-                        Add tag: <input id="addtag-{{id}}" data-url="{{tagurl}}" data-info="{{url}}" class="addtaginput"> <input type="button" class="addtagbutton" data-id="{{id}}" value="Add">\
-                    </div>\
-                    <div class="moviepath">\
-                        {{ this.path }}\
-                    </div>\
-                </div>\
-            </div>'
-            );
+                    </div>');
     
 function addtag(obj) {
     var tag = obj.val();
@@ -41,7 +17,6 @@ function addtag(obj) {
     var info = obj.data("info");
     $.post(url, {"tag": tag},function() {
         obj.val("");
-        load_taglist();
         show_popup(info);
     });
 }
@@ -75,31 +50,33 @@ function complete_tags(inputfield) {
 
 function show_popup(movieurl) {
     $.get(movieurl, function (data) {
-        $(".popup").remove();
-        var html = template.popup(data);
+        $(".infodata").hide();
+        var thumbs = template.thumbs(data);
+        var tags = template.tags(data);
+        
         var t = $("#movie-"+data.id);
-        var pop = t.find(".popupc");
-        pop.html(html);
-        run_hooks();
-        pop.click(function (e) {e.stopImmediatePropagation();});
-        pop.find(".close").click(function (event) {
+        var info = t.find(".infodata");
+        info.find(".thumbsholder").html(thumbs);
+        info.find(".tagsholder").html(tags);
+        //run_hooks();
+        info.show();
+        //pop.click(function (e) {e.stopImmediatePropagation();});
+        
+        info.find(".close").click(function (event) {
             event.stopImmediatePropagation();
-            pop.empty();
+            info.hide();
         });
     });
 }
 
-function load_taglist() {
-    $.get("/tags/", function (data) {
-        $("#tlinner").html(template.taglist(data));
-    });
-}
 
 function run_hooks() {
-    $(".playvideobutton").click(function () {
+    $(".playvideobutton").click(function (e) {
         var t = $(this);
-        var id = t.data("id");
-        $.get("/run/"+id);
+        var id = t.prop("href");
+        $.get(id);
+        e.preventDefault();
+        return false;
     });
     $("input.addtaginput").keyup(function (event) {
         var t = $(this);
@@ -120,8 +97,7 @@ function run_hooks() {
 }
 
 $(document).ready(function () {
-    load_taglist();
-    $(".mainthumb").click(function () {
+    $(".showpopup").click(function () {
         var t = $(this);
         show_popup(t.data("url"));
     });

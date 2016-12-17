@@ -16,7 +16,6 @@ def scan(mf, category):
             try:
                 rr = root[len(mf.folder):]
                 mr = os.path.join(rr, f).lstrip("\\")
-                print mr
                 r = handle_file(mf, mr, category)
                 yield mr, f, r and "Added" or "Skipped"
             except:

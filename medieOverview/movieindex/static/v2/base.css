@@ -61,6 +61,7 @@ div#top {
     padding: 7px;
     background-color: #fff;
     border-bottom: 1px solid #000;
+    height: 35px;
 }
 .atag {
     text-decoration:underline;
@@ -127,7 +128,8 @@ div#movielist {
     float: left;
     width: 190px;
     padding:5px;
-    padding-top: 45px;
+    padding-top: 50px;
+    margin-top: 5px;
 }
 #tagslist {
     position: fixed;
@@ -136,9 +138,9 @@ div#movielist {
     overflow: auto;
 }
 
-div.movie .popup {
+div.movie .infodata {
     position: absolute;
-    display: block;
+    display: none;
     padding: 7px;
     border: 2px solid #000;
     border-radius: 10px;
@@ -178,6 +180,10 @@ div.movie {
     width: 172px;
     height: 200px;
     overflow: hidden;
+}
+
+div.notags {
+    background-color: #fee;
 }
 
 div.movie .thumb img {

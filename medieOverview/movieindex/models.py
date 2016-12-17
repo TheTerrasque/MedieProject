@@ -11,6 +11,7 @@ from get_username import get_username
 from django.urls import reverse
 
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 fetcher = MovieDataExtractorFFmpeg(settings.FFMPEG)
 extractor = MovieDataExtractor(fetcher)
@@ -95,6 +96,12 @@ class Movie(models.Model):
 
     def user_access(self, user):
         return self.category.user_access(user)
+    
+    def get_tag_url(self):
+        return reverse("movie-addtag", args=(self.id,))
+    
+    def get_json_url(self):
+        return reverse("movie-json-detail", args=(self.id,))
     
     def add_tag(self, tag):
         if tag:
