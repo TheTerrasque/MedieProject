@@ -33,15 +33,15 @@ function complete_tags(inputfield) {
     });
     $("body").append(container);
     container.click(function () {container.remove();});
-    $.get("/movies/tags/startswith/" + value, function(data) {
+    $.get("/movies/tags/startswith/?text=" + value, function(data) {
         var ul = $("<ul/>");
         container.append(ul);
-        $.each(data, function(i, v) {
+        $.each(data.tags, function(i, v) {
             var li = $("<li/>");
-            li.text(v.name);
+            li.text(v);
             ul.append(li);
             li.click(function () {
-                inputfield.val(v.name);
+                inputfield.val(v);
                 addtag(inputfield);
             });
         });
@@ -59,12 +59,14 @@ function show_popup(movieurl) {
         info.find(".thumbsholder").html(thumbs);
         info.find(".tagsholder").html(tags);
         //run_hooks();
+        $(".popcomplete").remove();
         info.show();
         //pop.click(function (e) {e.stopImmediatePropagation();});
         
         info.find(".close").click(function (event) {
             event.stopImmediatePropagation();
             info.hide();
+            $(".popcomplete").remove();
         });
     });
 }

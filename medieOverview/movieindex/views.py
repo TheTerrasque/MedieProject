@@ -124,3 +124,10 @@ def scan_moviefolder(request, mfid):
         yield u"</table>Scan done"
         
     return StreamingHttpResponse(iter_response())
+
+@permission_required("movieindex.tag_movie")
+def json_tags(request):
+    startswith = request.GET.get("text")
+    tags = models.Tag.objects.filter(name__startswith=startswith)
+    taglist = [ tag.name for tag in tags  ]
+    return JsonResponse({"tags":taglist})

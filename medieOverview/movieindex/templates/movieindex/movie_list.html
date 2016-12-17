@@ -43,10 +43,19 @@
                     <div class="close"><span>[X]</span></div>
                     <div class="thumbsholder"></div>
                     <div class="tagsholder"></div>
-                    <div>
-                        Add tag:
-                        <input id="addtag-{{id}}" data-url="{{movie.get_tag_url}}" data-info="{{movie.get_json_url}}" class="addtaginput">
-                        <input type="button" class="addtagbutton" data-id="{{movie.id}}" value="Add">
+                    {% if perms.movieindex.tag_movie %}
+                        <div class="addtag">
+                            Add tag:
+                            <input id="addtag-{{id}}" data-url="{{movie.get_tag_url}}" data-info="{{movie.get_json_url}}" class="addtaginput">
+                            <input type="button" class="addtagbutton" data-id="{{movie.id}}" value="Add">
+                        </div>
+                    {% endif %}
+                    <div class="extrainfo">
+                        <span class="folder">{{ movie.folder }}</span>
+                        <span class="category">{{ movie.category }}</span>
+                        <span class="size">{{ movie.size|filesizeformat }}</span>
+                        <span class="path">{{ movie.subpath }}</span>
+                        
                     </div>
                 </div>
             </div>

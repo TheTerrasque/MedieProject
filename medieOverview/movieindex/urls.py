@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     url(r'^$', views.MoviesIndex.as_view(), name="movie-list"),
     url(r'^tags/(?P<tags>[0-9,]+)/$', views.MoviesIndex.as_view(), name="movie-list-tag"),
+    url(r'^tags/startswith/$', views.json_tags, name="movie-json-tags"),
     url(r'^thumb/([0-9]+)/$', views.display_image, name="thumb-show"),
     url(r'^play/([0-9]+)/$', views.play_movie, name="movie-play"),
     url(r'^download/([0-9]+)/$', views.download_movie, name="movie-download"),

@@ -16,6 +16,10 @@ class MovieAdmin(admin.ModelAdmin):
     search_fields = ["title", "subpath"]
     raw_id_fields = ["main_thumb"]
     filter_horizontal = ["tags"]
+    fieldsets = (
+        (None, {"fields": ["title", "category", "tags"]}),
+        ("Filedata", {"fields": ["folder", "subpath", "rating", "length", "size", "bitrate", "codec", "fps", "height", "width", "main_thumb", "metadata"]}),
+    )
     #date_hierarchy = "added"
     
 admin.site.register(models.MovieCategory)

@@ -146,7 +146,7 @@ div.movie .infodata {
     border-radius: 10px;
     background-color: #eef;
     margin-left: -185px;
-    margin-top: -50px;
+    margin-top: -35px;
     width: 530px;
 }
 .close {
@@ -198,4 +198,9 @@ div.movie .moviedata {
 }
 span.movielength:before {
     content:" - ";
+}
+
+.extrainfo {
+    font-size: small;
+    font-style: italic;
 }
