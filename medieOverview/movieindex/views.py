@@ -1,5 +1,5 @@
 from . import models
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse, StreamingHttpResponse, JsonResponse
@@ -50,11 +50,24 @@ def jsonMovie(request, pk):
         "path": unicode(movie.folder),
         "tagurl": movie.get_tag_url(),
         "url": movie.get_json_url(),
+        "download_url": movie.get_download_url(),
     }
     return JsonResponse(d)
     
 class MFolderIndex(LoginRequiredMixin, ListView):
     model = models.MovieFolder
+
+class MovieStreamPlay(LoginRequiredMixin, DetailView):
+    model = models.Movie
+    template_name = "movieindex/movie_stream_play.html"
+
+    def get_queryset(self):
+        mcs = [
+            x for x in models.MovieCategory.objects.all()
+            if x.user_access(self.request.user)
+            ]
+        Q = models.Movie.objects.filter(category__in=mcs)
+        return Q
 
 class MoviesIndex(LoginRequiredMixin, ListView):
     model = models.Movie
@@ -93,10 +106,11 @@ def download_movie(request, movieid):
     movie = models.Movie.objects.get(id=movieid)
     if not movie.user_access(request.user): return "BAD"
     filename = movie.get_path()
-    movie.log("Downloaded movie")
     mime = MimeTypes().guess_type(filename)[0]
     fr = RangedFileResponse(request, filename, content_type=mime)
     fr['Content-Disposition'] = 'attachment; filename="%s"' % os.path.basename(filename)
+    if fr.status_code == 200:
+        movie.log("Downloaded movie")
     return fr
 
 @permission_required("movieindex.play_movie")    

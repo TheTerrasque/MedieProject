@@ -105,7 +105,8 @@ class RangedFileResponse(FileResponse):
         fsize = os.path.getsize(filename)
         self.ranged_file = RangedFileReader(fileobj, filesize=fsize)
         super(RangedFileResponse, self).__init__(self.ranged_file, *args, **kwargs)
-
+        self['Content-Length'] = fsize
+        
         if 'HTTP_RANGE' in request.META:
             self.add_range_headers(request.META['HTTP_RANGE'])
 
@@ -134,4 +135,4 @@ class RangedFileResponse(FileResponse):
             self.ranged_file.stop = stop
             self['Content-Range'] = 'bytes %d-%d/%d' % (start, stop - 1, size)
             self['Content-Length'] = stop - start
-            self.status_code = 206
+        self.status_code = 206

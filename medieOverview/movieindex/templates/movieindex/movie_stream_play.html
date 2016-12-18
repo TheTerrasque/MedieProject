@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+<div id="playvideo">
+    <video width="80%" controls>
+        <source src="{{ object.get_download_url }}"/>
+    </video>
+</div>
+{% endblock %}

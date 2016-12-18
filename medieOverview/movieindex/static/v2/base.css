@@ -22,11 +22,12 @@ clear: both;
 }
 .actions a {
     padding: 2px 3px;
-    margin: 5px 2px;
+    margin: 1px 2px;
     background-color: #ddd;
     border: 1px solid #333;
     color: #000;
     border-radius: 4px;
+    display: inline-block;
 }
 
 #top .title {

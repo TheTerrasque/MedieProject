@@ -96,6 +96,9 @@ class Movie(models.Model):
 
     def user_access(self, user):
         return self.category.user_access(user)
+
+    def get_download_url(self):
+        return reverse("movie-download", args=(self.id,))
     
     def get_tag_url(self):
         return reverse("movie-addtag", args=(self.id,))

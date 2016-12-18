@@ -1,5 +1,11 @@
 var template = {}
 
+template.video = Handlebars.compile('\ <div id="playvideo">\
+                        <video width="320" height="240" controls>\
+                            <source id="" src="{{ download_url }}"/>\
+                        </video>\
+                    </div>');
+
 template.thumbs = Handlebars.compile('<div class="thumbspop">\
                 {{#each thumbs }}\
                     <img src="{{ this }}">\
@@ -53,11 +59,13 @@ function show_popup(movieurl) {
         $(".infodata").hide();
         var thumbs = template.thumbs(data);
         var tags = template.tags(data);
+        var video = template.video(data);
         
         var t = $("#movie-"+data.id);
         var info = t.find(".infodata");
         info.find(".thumbsholder").html(thumbs);
         info.find(".tagsholder").html(tags);
+        info.find(".videoholder").html(video);
         //run_hooks();
         $(".popcomplete").remove();
         info.show();

@@ -28,10 +28,10 @@
                 </div>
                 <div class="actions">
                     {% if perms.movieindex.play_movie %}
-                        <a href="{% url "movie-play" movie.id %}" target="_blank" class="playvideobutton">Play</a>
+                        <a href="{{ movie.get_download_url }}" target="_blank" class="playvideobutton">Play</a>
                     {% endif %}
                     {% if perms.movieindex.download_movie %}
-                        <a href="{% url "movie-download" movie.id %}" target="_blank">Download</a>
+                        <a href="{% url "movie-download" movie.id %}">Download</a>
                     {% endif %}
                     {% if user.is_staff %}
                         <a href="{% url "admin:movieindex_movie_change" movie.id %}" target="_blank">Edit</a>
@@ -42,6 +42,11 @@
                 <div class="infodata">
                     <div class="close"><span>[X]</span></div>
                     <div class="thumbsholder"></div>
+                    <div class="actions">
+                        {% if perms.movieindex.download_movie %}
+                            <a href="{% url "movie-stream" movie.id %}">Stream video [Experimental!]</a>
+                        {% endif %}
+                    </div>
                     <div class="tagsholder"></div>
                     {% if perms.movieindex.tag_movie %}
                         <div class="addtag">
@@ -55,7 +60,6 @@
                         <span class="category">{{ movie.category }}</span>
                         <span class="size">{{ movie.size|filesizeformat }}</span>
                         <span class="path">{{ movie.subpath }}</span>
-                        
                     </div>
                 </div>
             </div>
