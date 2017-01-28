@@ -1,12 +1,10 @@
 from . import models
 from django.views.generic import ListView, DetailView
-from django.views.generic.detail import BaseDetailView
 from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse, StreamingHttpResponse, JsonResponse
 # Create your views here.
 from . import scanner
 import os
-from django.core.serializers import json, serialize
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -17,9 +15,7 @@ from mimetypes import MimeTypes
 from ranged_fileresponse import RangedFileResponse
 import datetime
 
-from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from mixins import JSONResponseMixin
 
 @login_required
 def display_image(request, imageid):
@@ -31,10 +27,15 @@ def display_image(request, imageid):
 @csrf_exempt
 @permission_required("movieindex.tag_movie")
 def tagMovie(request, pk):
-    movie = models.Movie.objects.get(id=pk)
-    if not movie.user_access(request.user): return HttpResponse("BAD")
+    movies = []
+    for pkp in pk.split(","):
+        movie = models.Movie.objects.get(id=pkp)
+        if not movie.user_access(request.user): return HttpResponse("BAD")
+        movies.append(movie)
     tag = request.POST.get("tag")
-    movie.add_tag(tag)
+    with models.transaction.atomic():
+        for movie in movies:
+            movie.add_tag(tag)
     return HttpResponse("OK")
 
 
@@ -130,11 +131,12 @@ def scan_moviefolder(request, mfid):
     
     def iter_response():
         yield u"<div>Scanning folder '%s'...</div><br/>" % mf.name
-        yield u"<table>"
+        yield u"<table class='list'>"
+        yield u"<tr><td>%s</td> <td>%s</d>t <td>%s</td></tr>" % ("Folder", "File", "Status")
         for root, f, status in scanner.scan(mf, c):
             if status != "Skipped" or request.GET.get("showskip"):
                 root = root[:-len(f)]
-                yield u"<tr><td>%s</td> <td>%s</td> <td>%s</td></div>" % (root, f, status)
+                yield u"<tr><td>%s</td> <td>%s</d>t <td>%s</td></tr>" % (root, f, status)
         yield u"</table>Scan done"
         
     return StreamingHttpResponse(iter_response())

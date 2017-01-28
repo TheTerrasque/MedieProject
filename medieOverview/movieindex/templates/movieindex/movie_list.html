@@ -21,17 +21,27 @@
 
 {% block content %}
     <div id="movielist">
+        <div id="multitag">
+            <div><input id="multitag-tag"><input type="button" value="Tag selected" id="multitag-send"></div>
+            <div>
+                <input id="select-all" value="Select all" type="button">
+                <input id="select-none" value="Select none" type="button">
+            </div>
+        </div>
         {% for movie in movies %}
-            <div class="movie {%if not movie.tags.count %}notags{% endif %}"  id="movie-{{movie.id}}" >
+            <div class="movie {%if not movie.tags.count %}notags{% endif %}"  id="movie-{{movie.id}}" data-id="{{movie.id}}">
+                <div class="multiselect">
+                    <input type="checkbox" data-id="{{movie.id}}" class="multiselectbox">
+                </div>
                 <div class="mainthumb showpopup" data-url="{{ movie.get_json_url }}">
                     <img src="{{ movie.main_thumb.get_image_url }}">
                 </div>
                 <div class="actions">
                     {% if perms.movieindex.play_movie %}
-                        <a href="{{ movie.get_download_url }}" target="_blank" class="playvideobutton">Play</a>
+                        <a href="{% url "movie-play" movie.id %}" target="_blank" class="playvideobutton">Play</a>
                     {% endif %}
                     {% if perms.movieindex.download_movie %}
-                        <a href="{% url "movie-download" movie.id %}">Download</a>
+                        <a href="{{ movie.get_download_url }}">Download</a>
                     {% endif %}
                     {% if user.is_staff %}
                         <a href="{% url "admin:movieindex_movie_change" movie.id %}" target="_blank">Edit</a>
@@ -51,7 +61,7 @@
                     {% if perms.movieindex.tag_movie %}
                         <div class="addtag">
                             Add tag:
-                            <input id="addtag-{{id}}" data-url="{{movie.get_tag_url}}" data-info="{{movie.get_json_url}}" class="addtaginput">
+                            <input id="addtag-{{movie.id}}" data-url="{{movie.get_tag_url}}" data-info="{{movie.get_json_url}}" class="addtaginput">
                             <input type="button" class="addtagbutton" data-id="{{movie.id}}" value="Add">
                         </div>
                     {% endif %}

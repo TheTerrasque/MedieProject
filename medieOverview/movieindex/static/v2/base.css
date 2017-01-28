@@ -12,6 +12,17 @@
     max-height: 130px;
 }
 
+#multitag {
+    display:none;
+    position: fixed;
+    right: 3px;
+    top: 40px;
+    padding: 12px;
+    background-color: #eee;
+    border-radius: 5px;
+    border: 1px solid #333;
+}
+
 #tagslist li {
 padding-left: 3px;
 clear: both;
@@ -28,6 +39,30 @@ clear: both;
     color: #000;
     border-radius: 4px;
     display: inline-block;
+}
+
+div.mchecked {
+    border-color:#A47272 !important;
+    box-shadow: 4px 4px 8px #E68383 !important;
+}
+
+div.multiselect {
+    position: absolute;
+    margin-left: 171px;
+    margin-top: -15px;
+    display: none;
+}
+
+div.movie:hover div.multiselect {
+    display:block;
+}
+
+table.list td {
+    padding : 2px 4px;
+}
+
+#top span {
+    padding: 2px 4px;
 }
 
 #top .title {

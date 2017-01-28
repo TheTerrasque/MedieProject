@@ -17,19 +17,24 @@ template.tags = Handlebars.compile('<div class="movietags">Tags:\
                         {{/each}}\
                     </div>');
     
-function addtag(obj) {
+function addtag(obj, nopopup) {
     var tag = obj.val();
     var url = obj.data("url");
     var info = obj.data("info");
     $.post(url, {"tag": tag},function() {
         obj.val("");
-        show_popup(info);
+        if (nopopup === null) {
+            show_popup(info);
+        }
     });
 }
 
-function complete_tags(inputfield) {
+function complete_tags(inputfield, callback) {
     var value = inputfield.val();
     $(".popcomplete").remove();
+    if (value === "") {
+        return;
+    }
     var pos = inputfield.offset();
     var container = $("<div/>").addClass("popcomplete");
     container.css({
@@ -48,7 +53,9 @@ function complete_tags(inputfield) {
             ul.append(li);
             li.click(function () {
                 inputfield.val(v);
-                addtag(inputfield);
+                if (callback !== null) {
+                    callback(inputfield);
+                }
             });
         });
     });
@@ -79,6 +86,15 @@ function show_popup(movieurl) {
     });
 }
 
+function update_multiselect() {
+    var selected = $(".mchecked");
+    if (selected.length > 0) {
+        $("#multitag").show();
+    } else {
+        $("#multitag").hide();
+    }
+}
+
 
 function run_hooks() {
     $(".playvideobutton").click(function (e) {
@@ -88,7 +104,13 @@ function run_hooks() {
         e.preventDefault();
         return false;
     });
+
     $("input.addtaginput").keyup(function (event) {
+        var t = $(this);
+        complete_tags(t, addtag);
+    });    
+    
+    $("input#multitag-tag").keyup(function (event) {
         var t = $(this);
         complete_tags(t);
     });
@@ -98,11 +120,57 @@ function run_hooks() {
             addtag(t);
         }
     });
-    $("input.addtagbutton").click(function () {
+    
+    $("input.multiselectbox").change(function () {
+        var cb = $(this);
+        var p = cb.parent().parent();
+        if (this.checked) {
+            p.addClass("mchecked");
+        } else {
+            p.removeClass("mchecked");
+        }
+        update_multiselect();
+    });
+    
+    $("#select-none").click(function (e) {
+        $(".movie").find(".multiselectbox").each(function () {
+            this.checked = false;
+            $(this).change();
+        });
+        e.preventDefault();
+        return false;
+    });
+    
+    $("#select-all").click(function (e) {
+        $(".movie").find(".multiselectbox").each(function () {
+            this.checked = true;
+            $(this).change();
+        });
+        e.preventDefault();
+        return false;
+    });
+    
+    $("input#multitag-send").click(function (e) {
+        var tag = $("#multitag-tag").val();
+        var selected = $(".mchecked");
+        var ids = [];
+        selected.each(function () {
+            ids.push($(this).data("id"));
+        });
+        var url = "/movies/movie/" + ids.join() +"/addtag/";
+        $.post(url, {"tag": tag},function() {
+            $("#multitag-tag").val("");
+        });
+        e.preventDefault();
+        return false;
+    });
+    $("input.addtagbutton").click(function (e) {
         var t = $(this);
         var id = t.data("id");
         var t2 = $("#addtag-"+id);
         addtag(t2);
+        e.preventDefault();
+        return false;
     });
 }
 

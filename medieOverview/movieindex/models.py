@@ -108,10 +108,11 @@ class Movie(models.Model):
     
     def add_tag(self, tag):
         if tag:
-            tag, created = Tag.objects.get_or_create(name = tag)
-            tag.movies.add(self)
-            self.log("Added tag %s" % tag)
-            tag.update_count()
+            with transaction.atomic():
+                tag, created = Tag.objects.get_or_create(name = tag)
+                tag.movies.add(self)
+                self.log("Added tag %s" % tag)
+                tag.update_count()
     
     def get_thumbs(self):
         return self.thumbs.all()
