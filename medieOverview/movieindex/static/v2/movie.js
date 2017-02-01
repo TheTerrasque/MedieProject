@@ -23,7 +23,7 @@ function addtag(obj, nopopup) {
     var info = obj.data("info");
     $.post(url, {"tag": tag},function() {
         obj.val("");
-        if (nopopup === null) {
+        if (nopopup === undefined) {
             show_popup(info);
         }
     });
