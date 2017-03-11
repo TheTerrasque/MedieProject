@@ -11,6 +11,9 @@ class MovieDataExtractorFFmpeg(object):
     def __init__(self, ffmpeg_path):
         self.ffmpeg_path = ffmpeg_path
     
+    def fix_filepath_enc(self, path):
+        return path.encode("mbcs")
+    
     def run_ffmpeg(self, cmdlist):
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -32,6 +35,9 @@ class MovieDataExtractorFFmpeg(object):
         #http://nabe.kokidokom.net/2013/01/27/generating-screenshots-frame-extraction-with-ffmpeg/
         
         filename = tempfile.mktemp() + ".jpg"
+        
+        path = self.fix_filepath_enc(path)
+        
         args = [
             "-ss", str(seconds), 
             "-i", path,
@@ -40,7 +46,7 @@ class MovieDataExtractorFFmpeg(object):
             "-filter:v", 'scale=%s:-1' % size,
             filename
         ]
-        self.run_ffmpeg(args)
+        result = self.run_ffmpeg(args)
         data = open(filename, "rb").read()
         os.unlink(filename)
         return data    
@@ -49,6 +55,8 @@ class MovieDataExtractorFFmpeg(object):
         #
         # return dict: "seconds", "fps", "resolution", "codec", "bitrate"
         #
+
+        filepath = self.fix_filepath_enc(filepath)
 
         d = {}
         data = self.run_ffmpeg(["-i", filepath])

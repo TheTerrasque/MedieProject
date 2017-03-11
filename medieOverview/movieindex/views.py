@@ -76,12 +76,15 @@ class MoviesIndex(LoginRequiredMixin, ListView):
     context_object_name = 'movies'
     
     def get_queryset(self):
-
+        query = self.request.GET.get("q")
         mcs = [
             x for x in models.MovieCategory.objects.all()
             if x.user_access(self.request.user)
             ]
         Q = models.Movie.objects.filter(category__in=mcs)
+
+        if query:
+            Q = Q.filter(subpath__icontains=query)
         
         for tag in self.get_tags():
             Q = Q.filter(tags__id = tag)
@@ -132,11 +135,11 @@ def scan_moviefolder(request, mfid):
     def iter_response():
         yield u"<div>Scanning folder '%s'...</div><br/>" % mf.name
         yield u"<table class='list'>"
-        yield u"<tr><td>%s</td> <td>%s</d>t <td>%s</td></tr>" % ("Folder", "File", "Status")
+        yield u"<tr><td>%s</td> <td>%s</d> <td>%s</td></tr>" % ("Folder", "File", "Status")
         for root, f, status in scanner.scan(mf, c):
             if status != "Skipped" or request.GET.get("showskip"):
                 root = root[:-len(f)]
-                yield u"<tr><td>%s</td> <td>%s</d>t <td>%s</td></tr>" % (root, f, status)
+                yield u"<tr><td>%s</td> <td>%s</d> <td>%s</td></tr>" % (root, f, status)
         yield u"</table>Scan done"
         
     return StreamingHttpResponse(iter_response())
