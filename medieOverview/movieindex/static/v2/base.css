@@ -69,9 +69,10 @@ table.list td {
     font-size: 130%;
 }
 
-a {
+a,.click {
     text-decoration: none;
     color: #B35600;
+    cursor:pointer;
 }
 
 div.moviepath {
@@ -80,7 +81,7 @@ div.moviepath {
     font-style: italic;
 }
 
-a:hover {
+a:hover,.click:hover {
     text-decoration:underline;
 }
 #tagslist li .tagcount{

@@ -1,22 +1,29 @@
     {% if is_paginated %}
         <div id="paginate">
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                <span class="click dopaginate" data-page="{{ page_obj.previous_page_number }}">previous</span>
             {% else %}
                 <span>previous</span>
             {% endif %}
             <span id="pages">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <span class="click dopaginate" data-page="{{ page_obj.next_page_number }}">next</span>
                 {% else %}
                     <span>next</span>
                 {% endif %}
             <div id="pageslist">
                 <div>Pages</div>
                 {% for pagenr in page_obj.paginator.page_range %}
-                    <a href="?page={{pagenr}}">{{pagenr}}</a>
-                
+                    <span class="click dopaginate" data-page="{{pagenr}}">{{pagenr}}</span>
                 {% endfor %}
             </div>
         </div>
-        {% endif %}
+        <script>
+            $(".dopaginate").click(function () {
+                var f = $("#movieform");
+                var t = $(this);
+                f.find(".paginate-pagevalue").val(t.data("page"));
+                f.submit();
+            });
+        </script>
+    {% endif %}

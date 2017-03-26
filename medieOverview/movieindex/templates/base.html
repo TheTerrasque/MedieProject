@@ -16,7 +16,12 @@
         <span><a href="{% url "movie-list" %}">Movies</a></span>
         <span><a href="{% url "moviefolder-list" %}">Folders</a></span>
         {% if user.is_staff %}<span><a href="{% url "admin:index" %}">Admin</a></span>{% endif %}
-        {% include "inc/paginate.html" %}
+        {% block top %}
+            <form id="movieform">
+                <input type="hidden" name="page" class="paginate-pagevalue">
+            </form>
+        {% endblock %}
+        {% block paginate %}{% include "inc/paginate.html" %}{% endblock %}
     </div>
     <div id="side">
         {% block side %}

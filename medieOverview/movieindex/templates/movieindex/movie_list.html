@@ -1,22 +1,38 @@
 {% extends "base.html" %}
 
+{% block top %}
+<form id="movieform">
+    <input type="hidden" name="page" class="paginate-pagevalue">
+</form>
+Search: <input type="search" form="movieform" value="{{query}}" name="q">
+{% endblock %}
+
 {% block side %}
     <div id="tagslist">
-        <div id="activetags">
-            {% if ctags %}
-        <div>Active tags</div>
-        {% for tag in ctags %}
-            <span>{% include "inc/tag.html" %}</span>
-        {% endfor %}
-        {% endif %}
-        </div>
-        
+            <div>
+                <label class="click">
+                    <input class="tagcheck" form="movieform" type="checkbox" name="notags" value="check" {% if notags %}checked{% endif %}> 
+                    Show untagged
+                </label>
+            </div>        
         <span class="header">Taglist</span>
         
         {% for tag in tags %}
-            <div>{% include "inc/tag.html" %} {{tag.movies.count }}</div>
+            <div>
+                <label class="click">
+                    <input class="tagcheck" form="movieform" type="checkbox" name="tag" value="{{tag.id}}" {% if tag in ctags %}checked{% endif %}> 
+                    {{tag.name}} 
+                    <span>{{tag.movies.count }}</span>
+                </label>
+            </div>
         {% endfor %}
     </div>
+    <script>
+        $(".tagcheck").change(function () {
+            $("#movieform").submit();
+        });
+        
+    </script>
 {% endblock %}
 
 {% block content %}

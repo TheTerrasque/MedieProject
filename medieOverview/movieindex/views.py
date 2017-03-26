@@ -86,14 +86,15 @@ class MoviesIndex(LoginRequiredMixin, ListView):
         if query:
             Q = Q.filter(subpath__icontains=query)
         
-        for tag in self.get_tags():
-            Q = Q.filter(tags__id = tag)
+        if self.request.GET.get("notags"):
+            Q = Q.filter(tags=None)
+        else:
+            for tag in self.get_tags():
+                Q = Q.filter(tags__id = tag)
         return Q
     
     def get_tags(self):
-        t = self.kwargs.get("tags", [])
-        if t:
-            t=t.split(",")
+        t = self.request.GET.getlist("tag", [])
         r = [int(tn) for tn in t]
         return r
     
@@ -101,7 +102,8 @@ class MoviesIndex(LoginRequiredMixin, ListView):
         context = super(MoviesIndex, self).get_context_data(**kwargs)
         ct = models.Tag.objects.filter(id__in=self.get_tags())
         context['ctags'] = ct
-        context['sctags'] = ",".join([str(x.id) for x in ct] + [""])
+        context['notags'] = self.request.GET.get("notags")
+        context['query'] = self.request.GET.get("q", "")
         context['tags'] = models.Tag.objects.filter(movies__in=self.get_queryset()).distinct()
         return context
 
