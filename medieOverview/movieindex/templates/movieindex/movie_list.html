@@ -22,7 +22,7 @@ Search: <input type="search" form="movieform" value="{{query}}" name="q">
                 <label class="click">
                     <input class="tagcheck" form="movieform" type="checkbox" name="tag" value="{{tag.id}}" {% if tag in ctags %}checked{% endif %}> 
                     {{tag.name}} 
-                    <span>{{tag.movies.count }}</span>
+                    <span class="tagcount">{{tag.movies.count }}</span>
                 </label>
             </div>
         {% endfor %}
