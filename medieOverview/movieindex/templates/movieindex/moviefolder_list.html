@@ -21,8 +21,21 @@
                 <td>{{mf.movie_set.count}}</td>
                 <td>{{mf.last_scanned}}</td>
                 <td>{% if perms.movieindex.play_movie %}<a href="{% url "moviefolder-scan" mf.id %}">Scan</a>{% endif %}</td>
+                <td class="status" data-id="{{ mf.id }}"></td>
             </tr>
         {% endfor %}
         </table>
     </div>
+    <script>
+        var url = "{% url "moviefolder-scan-status" %}";
+        function update_status() {
+            $(".status").each( function () {
+                var se = $(this);
+                $.get(url + "?mfid=" + se.data("id"), function(data){
+                    se.text(data.progress + " " + data.status);
+                });
+            });
+        }
+        setInterval(update_status, 2000);
+    </script>
 {% endblock %}

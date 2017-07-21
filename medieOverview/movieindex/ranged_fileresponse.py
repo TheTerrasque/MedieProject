@@ -1,4 +1,4 @@
-from django.http.response import FileResponse, HttpResponse
+from django.http.response import FileResponse, HttpResponse, StreamingHttpResponse
 import os
 
 class RangedFileReader(object):
@@ -7,7 +7,7 @@ class RangedFileReader(object):
     the file defined by start and stop. Blocks of block_size will be returned
     from the starting position, up to, but not including the stop point.
     """
-    block_size = 8192
+    block_size = 8192*4
 
     def __init__(self, file_like, start=0, stop=float('inf'), block_size=None, filesize=None):
         """
@@ -18,6 +18,7 @@ class RangedFileReader(object):
                 Defaults to infinity.
             block_size (Optional[int]): The block_size to read with.
         """
+        print "Debug - file start"
         self.f = file_like
         self.size = filesize or len(self.f.read())
         self.block_size = block_size or RangedFileReader.block_size
@@ -49,9 +50,11 @@ class RangedFileReader(object):
         Returns:
             None if the value of the header is not syntatically valid.
         """
+        print "Range header => %s" % header
+        
         if not header or '=' not in header:
             return None
-
+        
         ranges = []
         units, range_ = header.split('=', 1)
         units = units.strip().lower()
@@ -83,11 +86,11 @@ class RangedFileReader(object):
                     return None
 
             ranges.append((start, stop))
-
+        print "Ranges: => %s" % ranges
         return ranges
 
 
-class RangedFileResponse(FileResponse):
+class RangedFileResponse(StreamingHttpResponse):
     """
     This is a modified FileResponse that returns `Content-Range` headers with
     the response, so browsers that request the file, can stream the response

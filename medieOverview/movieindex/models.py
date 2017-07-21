@@ -13,6 +13,8 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+import random, string, datetime
+
 fetcher = MovieDataExtractorFFmpeg(settings.FFMPEG)
 extractor = MovieDataExtractor(fetcher)
 
@@ -34,18 +36,27 @@ class MovieFolder(models.Model):
             fp = fullpath[len(self.folder):].lstrip("\\")
             return self.movie_set.filter(subpath = fp).first()
     
+    def add_movie_from_data(self, subpath, moviedata, screenshotdata=[]):
+            m = Movie(**moviedata)
+            m.folder = self
+            m.subpath = subpath
+            m.category = self.default_category
+            m.save()
+
+            for e in screenshotdata:
+                m.add_thumb( e["data"], e["seconds"]) 
+            
+            return m
+
+
     def add_movie(self, subpath, category, tags=[]):
         with transaction.atomic():
             path = os.path.join(self.folder, subpath)
             data = extractor.get_movie_data(path)
-            m = Movie(**data["movie"])
-            m.folder = self
-            m.subpath = subpath
-            m.category = category
-            m.save()
-            
-            for e in data["screens"]:
-                m.add_thumb( e["data"], e["seconds"])        
+            m = self.add_movie_from_data(subpath, data["movie"], data["screens"])
+            if m.category != category:
+                m.category = category
+                m.save()     
             
             for tag in tags:
                 m.add_tag(tag)
@@ -99,7 +110,7 @@ class Movie(models.Model):
 
     def get_download_url(self):
         return reverse("movie-download", args=(self.id,))
-    
+
     def get_tag_url(self):
         return reverse("movie-addtag", args=(self.id,))
     
@@ -139,8 +150,38 @@ class Movie(models.Model):
             self.main_thumb = t
             self.save()
     
+    def get_dl_key(self, hours=24, reuse=12):
+        reuse = datetime.datetime.now() + datetime.timedelta(hours=reuse)
+        expire = datetime.datetime.now() + datetime.timedelta(hours=hours)
+        q = MovieDownloadKey.objects.filter(movie=self, valid_until__gt = reuse)
+        if q:
+            o = q[0]
+            #o.valid_until = expire
+            #o.save()
+        else:
+            key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(12))
+            o = MovieDownloadKey.objects.create(movie = self, key = key, valid_until=expire)
+        return o.key
+
+    def check_dl_key(self, key):
+        return MovieDownloadKey.objects.filter(movie=self, valid_until__gt = datetime.datetime.now(), key=key)
+
     def __unicode__(self):
         return self.title
+
+class WorkerCommand(models.Model):
+    task=models.CharField(max_length=100)
+    target=models.CharField(max_length=200)
+    status = models.CharField(max_length=100, default="NEW")
+    progress = models.CharField(max_length=100, blank=True)
+
+    def __unicode__(self):
+        return "%s <%s>: %s" % (self.task, self.target, self.status)
+
+class MovieDownloadKey(models.Model):
+    movie = models.ForeignKey(Movie)
+    key = models.CharField(max_length=50, db_index=True)
+    valid_until = models.DateTimeField()
 
 class MovieLog(models.Model):
     user = models.ForeignKey(User, blank=True, null=True)

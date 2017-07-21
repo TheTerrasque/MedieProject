@@ -4,14 +4,15 @@
 <form id="movieform">
     <input type="hidden" name="page" class="paginate-pagevalue">
 </form>
-Search: <input type="search" form="movieform" value="{{query}}" name="q">
+Search: {{ form.query }} Movies per page: {{ form.perpage }}
 {% endblock %}
 
 {% block side %}
     <div id="tagslist">
             <div>
                 <label class="click">
-                    <input class="tagcheck" form="movieform" type="checkbox" name="notags" value="check" {% if notags %}checked{% endif %}> 
+                    {{ form.notags }}
+                    
                     Show untagged
                 </label>
             </div>        
@@ -55,6 +56,9 @@ Search: <input type="search" form="movieform" value="{{query}}" name="q">
                 <div class="actions">
                     {% if perms.movieindex.play_movie %}
                         <a href="{% url "movie-play" movie.id %}" target="_blank" class="playvideobutton">Play</a>
+                    {% endif %}
+                    {% if perms.movieindex.download_movie %}
+                        <a href="vlc://{{ baseurl}}{% url "movie-download-key" movie.id %}?key={{movie.get_dl_key}}">VLC</a>
                     {% endif %}
                     {% if perms.movieindex.download_movie %}
                         <a href="{{ movie.get_download_url }}">Download</a>

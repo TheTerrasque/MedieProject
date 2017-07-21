@@ -7,5 +7,6 @@
     <video width="80%" controls>
         <source src="{{ object.get_download_url }}"/>
     </video>
+    <a href="vlc://{{ baseurl}}{% url "movie-download-key" object.id %}?key={{object.get_dl_key}}">VLC</a>
 </div>
 {% endblock %}

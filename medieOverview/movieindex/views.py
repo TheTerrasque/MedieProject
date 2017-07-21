@@ -1,21 +1,20 @@
-from . import models
-from django.views.generic import ListView, DetailView
-from django.contrib.auth.decorators import permission_required
-from django.http import HttpResponse, StreamingHttpResponse, JsonResponse
-# Create your views here.
-from . import scanner
+import datetime
 import os
-
-from django.contrib.auth.mixins import LoginRequiredMixin
-
-from django.contrib.auth.decorators import login_required
-
 from mimetypes import MimeTypes
 
-from ranged_fileresponse import RangedFileResponse
-import datetime
-
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import DetailView, ListView
+
+from ranged_fileresponse import RangedFileResponse
+
+from . import models, scanner
+from .forms import MovieFilterForm
+
+from django.core import serializers
 
 @login_required
 def display_image(request, imageid):
@@ -70,13 +69,28 @@ class MovieStreamPlay(LoginRequiredMixin, DetailView):
         Q = models.Movie.objects.filter(category__in=mcs)
         return Q
 
+    def get_context_data(self, **kwargs):
+        context = super(MovieStreamPlay, self).get_context_data(**kwargs)
+        context['baseurl'] = '{scheme}://{host}'.format(scheme=self.request.scheme,
+                                                           host=self.request.get_host())
+        return context
+
 class MoviesIndex(LoginRequiredMixin, ListView):
     model = models.Movie
     paginate_by = 100
     context_object_name = 'movies'
     
     def get_queryset(self):
-        query = self.request.GET.get("q")
+        self.form = MovieFilterForm(self.request.GET)
+        if self.form.is_valid():
+            formdata = self.form.cleaned_data
+            self.paginate_by = formdata.get("perpage")
+        else:
+            self.form = MovieFilterForm()
+            formdata = {}
+
+        query = formdata.get('query')
+
         mcs = [
             x for x in models.MovieCategory.objects.all()
             if x.user_access(self.request.user)
@@ -86,7 +100,7 @@ class MoviesIndex(LoginRequiredMixin, ListView):
         if query:
             Q = Q.filter(subpath__icontains=query)
         
-        if self.request.GET.get("notags"):
+        if formdata.get('notags'):
             Q = Q.filter(tags=None)
         else:
             for tag in self.get_tags():
@@ -102,14 +116,21 @@ class MoviesIndex(LoginRequiredMixin, ListView):
         context = super(MoviesIndex, self).get_context_data(**kwargs)
         ct = models.Tag.objects.filter(id__in=self.get_tags())
         context['ctags'] = ct
-        context['notags'] = self.request.GET.get("notags")
-        context['query'] = self.request.GET.get("q", "")
+        context['form'] = self.form
+        context['baseurl'] = '{scheme}://{host}'.format(scheme=self.request.scheme,
+                                                    host=self.request.get_host())
         context['tags'] = models.Tag.objects.filter(movies__in=self.get_queryset()).distinct()
         return context
-
-@permission_required("movieindex.download_movie")    
-def download_movie(request, movieid):
+   
+def download_movie_key(request, movieid):
+    print "Got movie req"
     movie = models.Movie.objects.get(id=movieid)
+    key = request.GET.get("key")
+    if key and movie.check_dl_key(key):
+        return dl_movie_Helper(request, movie)
+
+
+def dl_movie_Helper(request, movie):
     if not movie.user_access(request.user): return "BAD"
     filename = movie.get_path()
     mime = MimeTypes().guess_type(filename)[0]
@@ -118,6 +139,11 @@ def download_movie(request, movieid):
     if fr.status_code == 200:
         movie.log("Downloaded movie")
     return fr
+
+@permission_required("movieindex.download_movie")    
+def download_movie(request, movieid):
+    movie = models.Movie.objects.get(id=movieid)
+    return dl_movie_Helper(request, movie)
 
 @permission_required("movieindex.play_movie")    
 def play_movie(request, movieid):
@@ -128,7 +154,23 @@ def play_movie(request, movieid):
     return HttpResponse("OK")
 
 @permission_required("movieindex.scan_folder")
+def progress_scan_moviefolder(request):
+    mfid = request.GET.get("mfid")
+    r = models.WorkerCommand.objects.filter(task="SCANFOLDER", target=mfid).exclude(status__in=( "DONE")).order_by("-id")
+    if r:
+        return JsonResponse({
+            "status": r[0].status,
+            "progress": r[0].progress
+        }, safe=False)
+    return JsonResponse({
+        "status": "",
+        "progress": "No work queued"
+    }, safe=False)
+
+@permission_required("movieindex.scan_folder")
 def scan_moviefolder(request, mfid):
+    models.WorkerCommand.objects.create(task="SCANFOLDER", target=mfid)
+    return redirect('moviefolder-list')
     mf = models.MovieFolder.objects.get(id=mfid)
     c = mf.default_category
     mf.last_scanned = datetime.datetime.now()

@@ -25,4 +25,5 @@ class MovieAdmin(admin.ModelAdmin):
 admin.site.register(models.MovieCategory)
 admin.site.register(models.MovieFolder)
 admin.site.register(models.Tag)
+admin.site.register(models.WorkerCommand)
 admin.site.register(models.Thumb)
