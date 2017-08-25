@@ -54,7 +54,7 @@ Search: {{ form.query }} Movies per page: {{ form.perpage }}
                     <img src="{{ movie.main_thumb.get_image_url }}">
                 </div>
                 <div class="actions">
-                    {% if perms.movieindex.play_movie %}
+                    {% if perms.movieindex.play_movie and false %}
                         <a href="{% url "movie-play" movie.id %}" target="_blank" class="playvideobutton">Play</a>
                     {% endif %}
                     {% if perms.movieindex.download_movie %}

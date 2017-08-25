@@ -16,6 +16,7 @@
         <span><a href="{% url "movie-list" %}">Movies</a></span>
         <span><a href="{% url "moviefolder-list" %}">Folders</a></span>
         {% if user.is_staff %}<span><a href="{% url "admin:index" %}">Admin</a></span>{% endif %}
+        <span><a href="{% url "movie-help" %}">[Help]</a></span>
         {% block top %}
             <form id="movieform">
                 <input type="hidden" name="page" class="paginate-pagevalue">

@@ -81,6 +81,8 @@ class Movie(models.Model):
     subpath = models.CharField(max_length=200, db_index=True)
     added = models.DateTimeField(auto_now=True)
     
+    active = models.BooleanField(default=True)
+
     rating = models.IntegerField(default = 0)
     metadata = models.TextField(blank = True)
     

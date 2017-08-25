@@ -7,7 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, TemplateView
 
 from ranged_fileresponse import RangedFileResponse
 
@@ -54,6 +54,9 @@ def jsonMovie(request, pk):
     }
     return JsonResponse(d)
     
+class HelpPage(LoginRequiredMixin, TemplateView):
+    template_name = "movieindex/help.html"
+
 class MFolderIndex(LoginRequiredMixin, ListView):
     model = models.MovieFolder
 
@@ -95,7 +98,7 @@ class MoviesIndex(LoginRequiredMixin, ListView):
             x for x in models.MovieCategory.objects.all()
             if x.user_access(self.request.user)
             ]
-        Q = models.Movie.objects.filter(category__in=mcs)
+        Q = models.Movie.objects.filter(category__in=mcs, active = True)
 
         if query:
             Q = Q.filter(subpath__icontains=query)
