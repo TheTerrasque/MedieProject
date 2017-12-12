@@ -1,10 +1,8 @@
-{% extends "base.html" %}
-
-
-
+{% extends "base.html" %} 
+{%block title%}Stream {{object}}{% endblock %}
 {% block content %}
 <div id="playvideo">
-    <video width="80%" controls>
+    <video width="80%" controls preload="metadata">
         <source src="{{ object.get_download_url }}"/>
     </video>
     <a href="vlc://{{ baseurl}}{% url "movie-download-key" object.id %}?key={{object.get_dl_key}}">VLC</a>

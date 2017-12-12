@@ -74,7 +74,7 @@ Search: {{ form.query }} Movies per page: {{ form.perpage }}
                     <div class="thumbsholder"></div>
                     <div class="actions">
                         {% if perms.movieindex.download_movie %}
-                            <a href="{% url "movie-stream" movie.id %}">Stream video [Experimental!]</a>
+                            <a href="{% url "movie-stream" movie.id %}" target="vidstream">Stream video [Experimental!]</a>
                         {% endif %}
                     </div>
                     <div class="tagsholder"></div>

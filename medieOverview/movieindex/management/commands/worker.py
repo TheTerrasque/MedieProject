@@ -43,7 +43,7 @@ def scan_folder(mf):
                     "file": full_path,
                     "subpath": subpath
                 }
-                print "Adding %s to work" % d
+                print u"Adding %s to work" % d
                 queue.put(d)
                 files_to_add += 1
                 yield {
@@ -88,5 +88,8 @@ class Command(BaseCommand):
             L.warn("test w")
             for work in models.WorkerCommand.objects.filter(status="NEW"):
                 self.stdout.write("New work")
-                handle_work(work)
+                try:
+                    handle_work(work)
+                except:
+                    self.stdout.write("Worker handler crashed!!")
             time.sleep(0.5)
